@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blind Travel Vote</title>
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --muted: #64748b;
+        --text: #0f172a;
+        --line: #e2e8f0;
+        --accent: #0f172a;
+        --soft: #f1f5f9;
+        --warn-bg: #fef3c7;
+        --warn-text: #92400e;
+        --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        --radius: 24px;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .grid { display: grid; gap: 24px; }
+      .top-grid { grid-template-columns: 1.15fr 0.85fr; }
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 24px;
+      }
+
+      .hero {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        background: var(--soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      h1, h2, h3, p { margin: 0; }
+      h1 { font-size: 2rem; margin-bottom: 6px; }
+      h2 { font-size: 1.3rem; margin-bottom: 8px; }
+      h3 { font-size: 1.05rem; }
+      .muted { color: var(--muted); }
+
+      .section { margin-top: 28px; }
+      .section:first-of-type { margin-top: 0; }
+
+      label {
+        display: block;
+        font-size: 0.92rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      input, select, button, textarea { font: inherit; }
+
+      input, select, textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px 14px;
+        background: white;
+        color: var(--text);
+      }
+
+      textarea { min-height: 92px; resize: vertical; }
+
+      button {
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 12px 16px;
+        cursor: pointer;
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+      }
+
+      button.secondary {
+        background: white;
+        color: var(--text);
+        border-color: var(--line);
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .soft-block {
+        background: var(--soft);
+        border-radius: 22px;
+        padding: 18px;
+      }
+
+      .pill-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .pill {
+        background: white;
+        border-radius: 999px;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+      }
+
+      .status {
+        border-radius: 16px;
+        padding: 14px 16px;
+        background: var(--soft);
+      }
+
+      .error {
+        background: var(--warn-bg);
+        color: var(--warn-text);
+      }
+
+      .winner {
+        background: #0f172a;
+        color: white;
+      }
+
+      .winner .muted { color: #cbd5e1; }
+
+      .results-grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .spacer { height: 8px; }
+
+      @media (max-width: 900px) {
+        .top-grid { grid-template-columns: 1fr; }
+        .container { padding: 16px; }
+        .card { padding: 18px; }
+        h1 { font-size: 1.7rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container grid">
+      <section class="grid top-grid">
+        <div class="card">
+          <div class="hero">
+            <div class="icon-box">🌍</div>
+            <div>
+              <h1>Blind Travel Vote</h1>
+              <p class="muted">Create a room, share the link, and let everyone submit their rankings from their own phone or computer.</p>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Create a room</h3>
+            <div class="spacer"></div>
+            <label for="room-title">Room title</label>
+            <input id="room-title" placeholder="Summer trip vote" />
+            <div class="spacer"></div>
+            <label for="countries">Countries (one per line)</label>
+            <textarea id="countries">Japan
+Italy
+New Zealand
+Portugal</textarea>
+            <div class="spacer"></div>
+            <div class="actions">
+              <button id="create-room">Create room</button>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Join a room</h3>
+            <div class="spacer"></div>
+            <label for="room-id">Room code</label>
+            <input id="room-id" placeholder="Paste room code" />
+            <div class="spacer"></div>
+            <div class="actions">
+              <button class="secondary" id="load-room">Load room</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>How it works</h2>
+          <p class="muted">This version is ready for Netlify Functions + Neon. Once the backend files are deployed, each room stores countries and votes in the database.</p>
+          <div class="section soft-block">1. Create a room and share the code.</div>
+          <div class="section soft-block">2. Each person opens the site, enters the room code, and submits one ranking.</div>
+          <div class="section soft-block">3. Everyone can see the final winner after reveal.</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Room</h2>
+        <div class="spacer"></div>
+        <div id="room-status" class="status">No room loaded yet.</div>
+        <div class="section" id="room-panel" style="display:none;">
+          <div class="soft-block">
+            <h3 id="loaded-room-title">Room</h3>
+            <div class="pill-wrap" id="country-pills"></div>
+          </div>
+
+          <div class="section">
+            <label for="voter-name">Your name</label>
+            <input id="voter-name" placeholder="Nathan" />
+          </div>
+
+          <div class="section">
+            <h3>Your ranking</h3>
+            <div class="spacer"></div>
+            <div id="ranking-inputs" class="grid"></div>
+          </div>
+
+          <div class="section actions">
+            <button id="submit-vote">Submit vote</button>
+            <button class="secondary" id="refresh-room">Refresh room</button>
+          </div>
+
+          <div class="section">
+            <h3>Votes submitted</h3>
+            <div class="spacer"></div>
+            <div id="vote-count" class="status">0 votes submitted.</div>
+          </div>
+
+          <div class="section actions">
+            <button class="secondary" id="reveal-results">Reveal results</button>
+          </div>
+
+          <div class="section" id="results"></div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      let currentRoom = null;
+      let currentVotes = [];
+      let rankingState = [];
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function setStatus(message, isError = false) {
+        const box = document.getElementById("room-status");
+        box.textContent = message;
+        box.className = isError ? "status error" : "status";
+      }
+
+      function rankToPoints(rank, totalChoices) {
+        return totalChoices - rank + 1;
+      }
+
+      function renderRankingInputs(countries) {
+        const wrap = document.getElementById("ranking-inputs");
+        if (!rankingState.length || rankingState.length !== countries.length) {
+          rankingState = Array(countries.length).fill("");
+        }
+        const selected = new Set(rankingState.filter(Boolean));
+
+        wrap.innerHTML = countries.map((_, index) => {
+          const currentValue = rankingState[index] || "";
+          const options = ['<option value="">Select a country</option>']
+            .concat(countries.map(country => {
+              const disabled = selected.has(country) && currentValue !== country ? "disabled" : "";
+              const selectedText = currentValue === country ? "selected" : "";
+              return `<option value="${escapeHtml(country)}" ${selectedText} ${disabled}>${escapeHtml(country)}</option>`;
+            }))
+            .join("");
+
+          return `
+            <div>
+              <label>${index + 1}${index === 0 ? "st" : index === 1 ? "nd" : index === 2 ? "rd" : "th"} choice</label>
+              <select onchange="updateRanking(${index}, this.value)">${options}</select>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function updateRanking(index, value) {
+        rankingState[index] = value;
+        renderRankingInputs(currentRoom.countries);
+      }
+
+      function renderRoom(room, votes) {
+        currentRoom = room;
+        currentVotes = votes;
+        document.getElementById("room-panel").style.display = "block";
+        document.getElementById("loaded-room-title").textContent = room.title || `Room ${room.id}`;
+        document.getElementById("country-pills").innerHTML = room.countries.map(country => `<span class="pill">${escapeHtml(country)}</span>`).join("");
+        document.getElementById("vote-count").textContent = `${votes.length} vote${votes.length === 1 ? "" : "s"} submitted.`;
+        setStatus(`Loaded room ${room.id}. Status: ${room.status}`);
+        renderRankingInputs(room.countries);
+      }
+
+      async function loadRoom() {
+        const roomId = document.getElementById("room-id").value.trim();
+        if (!roomId) {
+          setStatus("Enter a room code first.", true);
+          return;
+        }
+        setStatus("Loading room...");
+        const response = await fetch(`/.netlify/functions/get-room?roomId=${encodeURIComponent(roomId)}`);
+        const data = await response.json();
+        if (!response.ok) {
+          setStatus(data.error || "Could not load room.", true);
+          return;
+        }
+        renderRoom(data.room, data.votes || []);
+      }
+
+      async function createRoom() {
+        const title = document.getElementById("room-title").value.trim();
+        const countries = document.getElementById("countries").value
+          .split("\n")
+          .map(item => item.trim())
+          .filter(Boolean);
+
+        if (countries.length < 2) {
+          setStatus("Enter at least 2 countries.", true);
+          return;
+        }
+
+        setStatus("Creating room...");
+        const response = await fetch("/.netlify/functions/create-room", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, countries })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          setStatus(data.error || "Could not create room.", true);
+          return;
+        }
+        document.getElementById("room-id").value = data.room.id;
+        rankingState = Array(data.room.countries.length).fill("");
+        renderRoom(data.room, []);
+      }
+
+      async function submitVote() {
+        if (!currentRoom) {
+          setStatus("Load a room first.", true);
+          return;
+        }
+        const voterName = document.getElementById("voter-name").value.trim();
+        if (!voterName) {
+          setStatus("Enter your name first.", true);
+          return;
+        }
+        const unique = new Set(rankingState.filter(Boolean));
+        if (rankingState.some(v => !v) || unique.size !== currentRoom.countries.length) {
+          setStatus("Rank every country exactly once.", true);
+          return;
+        }
+
+        setStatus("Submitting vote...");
+        const response = await fetch("/.netlify/functions/submit-vote", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roomId: currentRoom.id,
+            voterName,
+            ranking: rankingState
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          setStatus(data.error || "Could not submit vote.", true);
+          return;
+        }
+        await loadRoom();
+        setStatus("Vote submitted.");
+      }
+
+      async function revealResults() {
+        if (!currentRoom) {
+          setStatus("Load a room first.", true);
+          return;
+        }
+
+        setStatus("Revealing results...");
+        const response = await fetch("/.netlify/functions/reveal-room", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ roomId: currentRoom.id })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          setStatus(data.error || "Could not reveal results.", true);
+          return;
+        }
+
+        const resultWrap = document.getElementById("results");
+        resultWrap.innerHTML = `
+          <div class="card winner">
+            <h3>🏆 Winning country</h3>
+            <div class="spacer"></div>
+            <h1>${escapeHtml(data.winner.country)}</h1>
+            <p class="muted">Total score: ${data.winner.score} • First-place votes: ${data.winner.firstPlaceVotes}</p>
+          </div>
+          <div class="spacer"></div>
+          <div class="results-grid">
+            ${data.leaderboard.map((entry, index) => `
+              <div class="card">
+                <p class="muted">#${index + 1}</p>
+                <h3>${escapeHtml(entry.country)}</h3>
+                <div class="spacer"></div>
+                <p class="muted">Score: ${entry.score}</p>
+                <p class="muted">1st-place votes: ${entry.firstPlaceVotes}</p>
+                <p class="muted">Placements: ${entry.placements.join(", ")}</p>
+              </div>
+            `).join("")}
+          </div>
+        `;
+        setStatus("Results revealed.");
+      }
+
+      document.getElementById("load-room").addEventListener("click", loadRoom);
+      document.getElementById("create-room").addEventListener("click", createRoom);
+      document.getElementById("submit-vote").addEventListener("click", submitVote);
+      document.getElementById("refresh-room").addEventListener("click", loadRoom);
+      document.getElementById("reveal-results").addEventListener("click", revealResults);
+      window.updateRanking = updateRanking;
+    </script>
+  </body>
+</html>
